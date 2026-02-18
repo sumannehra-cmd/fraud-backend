@@ -1,27 +1,27 @@
-require("dotenv").config();          // 👈 1️⃣ sabse upar
-const express = require("express");
-const cors = require("cors");
+import express from "express";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import cors from "cors";
 
-const connectDB = require("./db");   // 👈 2️⃣ db import
+dotenv.config();
 
 const app = express();
-
 app.use(cors());
 app.use(express.json());
 
-connectDB();                          // 👈 3️⃣ YAHI IMPORTANT LINE
+const PORT = process.env.PORT || 4000;
 
-app.post("/check-fraud", async (req, res) => {
-  const { amount } = req.body;
-
-  const status = amount > 50000 ? "FRAUD" : "GENUINE";
-
-  res.json({ status });
+// test route
+app.get("/", (req, res) => {
+  res.json({ status: "Backend running" });
 });
 
-const PORT = process.env.PORT || 4000;
+// MongoDB connect
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB connected"))
+  .catch(err => console.error(err));
 
 app.listen(PORT, () => {
   console.log(`Backend running on port ${PORT}`);
 });
-
