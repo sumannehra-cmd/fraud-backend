@@ -1,7 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
-import dotenv from "dotenv";
 import cors from "cors";
+import dotenv from "dotenv";
 
 dotenv.config();
 
@@ -9,19 +9,24 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const PORT = process.env.PORT || 4000;
+console.log("Server starting...");
 
-// test route
+// Safe MongoDB connect (NO crash)
+if (process.env.MONGO_URI) {
+  mongoose
+    .connect(process.env.MONGO_URI)
+    .then(() => console.log("MongoDB connected"))
+    .catch(err => console.error("MongoDB error:", err.message));
+} else {
+  console.log("⚠️ MONGO_URI not found, running without DB");
+}
+
 app.get("/", (req, res) => {
   res.json({ status: "Backend running" });
 });
 
-// MongoDB connect
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB connected"))
-  .catch(err => console.error(err));
+const PORT = process.env.PORT || 4000;
 
 app.listen(PORT, () => {
-  console.log(`Backend running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
