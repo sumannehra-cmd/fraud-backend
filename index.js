@@ -6,35 +6,36 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
-
 app.use(cors());
 app.use(express.json());
 
-// 🔥 ROOT ROUTE (MOST IMPORTANT)
+// health check (MOST IMPORTANT)
 app.get("/", (req, res) => {
-  res.status(200).send("Backend is alive 🚀");
+  res.status(200).send("OK");
 });
 
-// test routes
-app.get("/history", (req, res) => {
-  res.json([]);
-});
-
+// test route
 app.post("/check", (req, res) => {
-  res.json({ result: "GENUINE" });
+  const { amount } = req.body;
+  const isFraud = Number(amount) > 10000;
+  res.json({ amount, status: isFraud ? "FRAUD" : "GENUINE" });
 });
 
-// MongoDB
+app.get("/history", (req, res) => {
+  res.json([
+    { id: 1, amount: 5000, status: "GENUINE" },
+    { id: 2, amount: 15000, status: "FRAUD" }
+  ]);
+});
+
+// Mongo (safe)
 if (process.env.MONGO_URI) {
-  mongoose
-    .connect(process.env.MONGO_URI)
+  mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log("MongoDB connected"))
-    .catch((err) => console.error("MongoDB error:", err.message));
+    .catch(err => console.log("Mongo error:", err.message));
 }
 
-const PORT = process.env.PORT || 8080;
-
-// 🔥 THIS LINE SAVES LIVES ON RAILWAY
+const PORT = process.env.PORT;
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
 });
